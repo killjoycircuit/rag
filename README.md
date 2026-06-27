@@ -1,10 +1,12 @@
 # Hybrid RAG — Retrieval-Augmented Generation with Dense + Sparse Search
 
-A self-correcting **Hybrid Retrieval-Augmented Generation** pipeline that combines **FAISS vector search** (semantic understanding) with **BM25 keyword search** (exact matching) to answer questions about your documents — PDFs, DOCX, CSV, Excel, images (OCR), and plain text.
+A self-correcting **Hybrid Retrieval-Augmented Generation** pipeline that combines **FAISS vector search** (semantic understanding) with **BM25 keyword search** (exact matching) to answer questions about your documents — PDFs, DOCX, CSV, Excel and plain text.
 
 Built with **LangChain**, **LangGraph**, **Groq** (free LLM inference), and **HuggingFace** embeddings.
 
-<video src="sample/video-sample.mp4" autoplay muted loop playsinline></video>
+## Demo
+
+[![Watch Demo](assets/thumbnail.png)](https://youtu.be/R3cxfOzA3nI?si=xRNkwlr57ip8sqPB)
 
 ---
 
