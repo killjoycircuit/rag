@@ -23,13 +23,13 @@ Traditional RAG systems use **only** vector search (dense retrieval). This works
 
 ```mermaid
 graph LR
-    Q["❓ User Query"] --> F["🧮 FAISS<br/>(Semantic Search)"]
-    Q --> B["📊 BM25<br/>(Keyword Search)"]
+    Q["User Query"] --> F["FAISS<br/>(Semantic Search)"]
+    Q --> B["BM25<br/>(Keyword Search)"]
     
-    F -->|"Top-K results<br/>weight: 0.6"| E["⚖️ EnsembleRetriever<br/>Score Fusion"]
+    F -->|"Top-K results<br/>weight: 0.6"| E["EnsembleRetriever<br/>Score Fusion"]
     B -->|"Top-K results<br/>weight: 0.4"| E
     
-    E -->|"Merged + Deduplicated<br/>Re-ranked by combined score"| R["📋 Final Results"]
+    E -->|"Merged + Deduplicated<br/>Re-ranked by combined score"| R["Final Results"]
 
     style Q fill:#ff6b6b,color:#fff
     style E fill:#ffd43b,color:#000
@@ -65,19 +65,19 @@ After fusion: `final_score = (0.6 × FAISS_score) + (0.4 × BM25_score)` → bes
 
 ```mermaid
 graph TD
-    A["📄 Documents<br/>(PDF, DOCX, CSV, TXT, Images)"] --> B["📂 Data Loader<br/>(data_loader.py)"]
-    B --> C["✂️ Text Splitter<br/>(text_splitter.py)<br/>chunk_size=1000, overlap=150"]
-    C --> D["🧮 Embedding Model<br/>(embedding.py)<br/>all-MiniLM-L6-v2"]
-    C --> E["📊 BM25 Index<br/>(search.py)<br/>In-memory keyword index"]
-    D --> F["💾 FAISS Vector Index<br/>(vectorstore.py)<br/>Saved to ./faiss_index/"]
+    A["Documents<br/>(PDF, DOCX, CSV, TXT)"] --> B["Data Loader<br/>(data_loader.py)"]
+    B --> C["Text Splitter<br/>(text_splitter.py)<br/>chunk_size=1000, overlap=150"]
+    C --> D["Embedding Model<br/>(embedding.py)<br/>all-MiniLM-L6-v2"]
+    C --> E["BM25 Index<br/>(search.py)<br/>In-memory keyword index"]
+    D --> F["FAISS Vector Index<br/>(vectorstore.py)<br/>Saved to ./faiss_index/"]
 
-    G["❓ User Question"] --> H["🔍 Hybrid Retriever<br/>(search.py)<br/>FAISS 0.6 + BM25 0.4"]
+    G["User Question"] --> H["Hybrid Retriever<br/>(search.py)<br/>FAISS 0.6 + BM25 0.4"]
     F --> H
     E --> H
 
-    H --> I["📋 Relevance Grader<br/>(graph.py)<br/>LLM grades chunks"]
+    H --> I["Relevance Grader<br/>(graph.py)<br/>LLM grades chunks"]
 
-    I -->|"✅ Relevant"| J["🤖 Answer Generator<br/>(llm.py)<br/>Groq LLM"]
+    I -->|"✅ Relevant"| J["Answer Generator<br/>(llm.py)<br/>Groq LLM"]
     I -->|"❌ Not Relevant"| K["🔄 Query Rewriter<br/>(graph.py)<br/>LLM rewrites query"]
     K -->|"retry ≤ 2"| H
     K -->|"max retries hit"| L["⚠️ Fallback Answer"]
@@ -129,14 +129,14 @@ The loader walks the `./data` directory and routes each file to a specialized pa
 graph LR
     D["📁 ./data/ directory"] --> S{"🔍 File Extension?"}
 
-    S -->|".pdf"| P["📕 PyPDFLoader<br/>1 Document per page"]
-    S -->|".docx"| X["📘 python-docx<br/>Extract paragraphs"]
-    S -->|".csv"| C["📗 CSVLoader<br/>1 Document per row"]
-    S -->|".xlsx/.xls"| E["📊 UnstructuredExcelLoader<br/>Element-level"]
-    S -->|".txt"| T["📄 TextLoader<br/>UTF-8 encoding"]
-    S -->|".png/.jpg/.bmp"| O["🖼️ Tesseract OCR<br/>Image → text"]
+    S -->|".pdf"| P["PyPDFLoader<br/>1 Document per page"]
+    S -->|".docx"| X["python-docx<br/>Extract paragraphs"]
+    S -->|".csv"| C["CSVLoader<br/>1 Document per row"]
+    S -->|".xlsx/.xls"| E["UnstructuredExcelLoader<br/>Element-level"]
+    S -->|".txt"| T["TextLoader<br/>UTF-8 encoding"]
+    S -->|".png/.jpg/.bmp"| O["Tesseract OCR<br/>Image → text"]
 
-    P --> M["📦 List of Documents<br/>with metadata:<br/>source, file_type"]
+    P --> M["List of Documents<br/>with metadata:<br/>source, file_type"]
     X --> M
     C --> M
     E --> M
@@ -165,7 +165,7 @@ Raw documents are too long to embed effectively. The chunker splits them into ov
 
 ```mermaid
 graph TD
-    D["📄 Raw Document<br/>(e.g. 3000 chars)"] --> S["✂️ RecursiveCharacterTextSplitter"]
+    D["Raw Document<br/>(e.g. 3000 chars)"] --> S["RecursiveCharacterTextSplitter"]
     
     S --> T1["Try split on: \\n\\n<br/>(paragraph breaks)"]
     T1 -->|"chunks still > 1000 chars"| T2["Try split on: \\n<br/>(line breaks)"]
@@ -173,7 +173,7 @@ graph TD
     T3 -->|"chunks still > 1000 chars"| T4["Try split on: spaces<br/>(words)"]
     T4 -->|"last resort"| T5["Hard cut at<br/>1000 characters"]
 
-    T1 -->|"✅ fits"| R["📦 Chunk"]
+    T1 -->|"✅ fits"| R["Chunk"]
     T2 -->|"✅ fits"| R
     T3 -->|"✅ fits"| R
     T4 -->|"✅ fits"| R
@@ -232,8 +232,8 @@ Each text chunk is converted into a **384-dimensional numerical vector** that ca
 
 ```mermaid
 graph LR
-    C["✂️ Text Chunk<br/>'PSK modulation changes<br/>the carrier phase...'"] --> M["🧮 all-MiniLM-L6-v2<br/>(22M parameters)<br/>GPU: RTX 3050"]
-    M --> V["📊 384-dim Vector<br/>[0.023, -0.156, 0.089,<br/>0.241, ..., -0.034]"]
+    C["Text Chunk<br/>'PSK modulation changes<br/>the carrier phase...'"] --> M["all-MiniLM-L6-v2<br/>(22M parameters)<br/>GPU: RTX 3050"]
+    M --> V["384-dim Vector<br/>[0.023, -0.156, 0.089,<br/>0.241, ..., -0.034]"]
 
     style C fill:#4a9eff,color:#fff
     style M fill:#ffd43b,color:#000
@@ -260,8 +260,8 @@ The chunks are indexed in two completely different ways for hybrid retrieval:
 
 ```mermaid
 graph TD
-    C["📦 718 Text Chunks"] --> F["💾 FAISS Index<br/>(Dense / Semantic)"]
-    C --> B["📊 BM25 Index<br/>(Sparse / Keyword)"]
+    C["718 Text Chunks"] --> F["FAISS Index<br/>(Dense / Semantic)"]
+    C --> B["BM25 Index<br/>(Sparse / Keyword)"]
 
     F --> FD["How it works:<br/>• Stores 384-dim vectors<br/>• L2 distance search<br/>• Finds semantically similar text<br/>• Saved to disk (./faiss_index/)"]
     B --> BD["How it works:<br/>• Tokenizes text into words<br/>• Computes TF-IDF scores<br/>• Finds exact keyword matches<br/>• In-memory (rebuilt each run)"]
@@ -291,18 +291,18 @@ When a question arrives, **both** retrievers search independently, and their res
 
 ```mermaid
 graph TD
-    Q["❓ Query: 'What is PSK modulation?'"] --> F["🧮 FAISS Search<br/>Embed query → find nearest vectors"]
-    Q --> B["📊 BM25 Search<br/>Tokenize query → match keywords"]
+    Q["Query: 'What is PSK modulation?'"] --> F["FAISS Search<br/>Embed query → find nearest vectors"]
+    Q --> B["BM25 Search<br/>Tokenize query → match keywords"]
 
     F --> FR["FAISS Results:<br/>① 'digital modulation methods...' (0.82)<br/>② 'phase shift keying...' (0.79)<br/>③ 'carrier signal encoding...' (0.71)<br/>④ 'signal processing...' (0.65)"]
 
     B --> BR["BM25 Results:<br/>① 'PSK modulation is a...' (0.91)<br/>② 'PSK and QAM comparison...' (0.73)<br/>③ 'modulation scheme table...' (0.68)<br/>④ 'digital modulation intro...' (0.54)"]
 
-    FR -->|"weight: 0.6"| E["⚖️ EnsembleRetriever<br/>Weighted Score Fusion"]
+    FR -->|"weight: 0.6"| E["EnsembleRetriever<br/>Weighted Score Fusion"]
     BR -->|"weight: 0.4"| E
 
-    E --> D["🔀 Deduplicate + Rank<br/>Remove overlapping chunks"]
-    D --> R["📋 Top-4 Final Chunks<br/>Best of both worlds"]
+    E --> D["Deduplicate + Rank<br/>Remove overlapping chunks"]
+    D --> R["Top-4 Final Chunks<br/>Best of both worlds"]
 
     style Q fill:#ff6b6b,color:#fff
     style E fill:#ffd43b,color:#000
@@ -391,13 +391,13 @@ Once relevant chunks are confirmed, the LLM generates a **grounded** answer.
 
 ```mermaid
 graph TD
-    C["📋 Relevant Chunks<br/>(from hybrid retriever)"] --> F["📝 Format Context<br/>[Chunk 1 | Source: BlackBook.pdf]<br/>PSK modulation changes the...<br/><br/>[Chunk 2 | Source: BlackBook.pdf]<br/>QPSK uses four phase states..."]
+    C["Relevant Chunks<br/>(from hybrid retriever)"] --> F["Format Context<br/>[Chunk 1 | Source: BlackBook.pdf]<br/>PSK modulation changes the...<br/><br/>[Chunk 2 | Source: BlackBook.pdf]<br/>QPSK uses four phase states..."]
     
-    F --> P["📜 RAG Prompt Template:<br/>'Answer using ONLY the context.<br/>Cite source files. Don't guess.'"]
+    F --> P["RAG Prompt Template:<br/>'Answer using ONLY the context.<br/>Cite source files. Don't guess.'"]
     
-    P --> L["🤖 Groq LLM<br/>(openai/gpt-oss-20b)<br/>temperature=0.2"]
+    P --> L["Groq LLM<br/>(openai/gpt-oss-20b)<br/>temperature=0.2"]
     
-    L --> A["💬 Grounded Answer<br/>with source citations"]
+    L --> A["Grounded Answer<br/>with source citations"]
 
     style C fill:#4a9eff,color:#fff
     style L fill:#ffd43b,color:#000
@@ -702,32 +702,6 @@ graph TD
     style S3 fill:#ff6b6b,color:#fff
     style C6 fill:#51cf66,color:#fff
 ```
-
----
-
-## Current Limitations
-
-- **No reranking stage** — retrieved chunks go directly to the LLM without cross-encoder reranking
-- **No Reciprocal Rank Fusion (RRF)** — uses simple weighted fusion instead of the more robust RRF algorithm
-- **BM25 not persisted** — rebuilt in-memory every run (fast, but redundant work)
-- **No metadata filtering** — cannot filter by file type, date, or custom tags
-- **No streaming** — answers appear all at once after full generation
-- **Single embedding model** — no query-document asymmetric embedding support
-
----
-
-## Future Roadmap
-
-- [ ] Cross-encoder reranking (`cross-encoder/ms-marco-MiniLM-L-6-v2`)
-- [ ] Reciprocal Rank Fusion (RRF) for score combination
-- [ ] Context compression before LLM call
-- [ ] Metadata filtering (by file type, source, date)
-- [ ] Streaming LLM responses
-- [ ] Web UI (Streamlit or Gradio)
-- [ ] Multi-hop reasoning for complex queries
-- [ ] Evaluation framework (RAGAS metrics)
-
----
 
 ## Tech Stack
 
