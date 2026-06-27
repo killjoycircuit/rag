@@ -1,0 +1,49 @@
+# UI
+streamlit
+streamlit-option-menu
+streamlit-extras
+
+# Core orchestration
+langchain
+langchain-community
+langchain-core
+langchain-classic
+langgraph
+
+# LLM providers
+# OpenRouter (primary) — uses OpenAI-compatible API
+langchain-openai
+# Groq (fallback) — free/fast inference
+langchain-groq
+groq
+
+# Embeddings (HuggingFace, free & local)
+sentence-transformers
+langchain-huggingface
+torch            # for GPU support, install CUDA build separately:
+                 # see https://pytorch.org/get-started/locally/ and pick your CUDA version
+
+# Vector DB (semantic search)
+faiss-cpu
+
+# Keyword/sparse search (exact match component of hybrid)
+rank-bm25
+
+# Text splitting / chunking
+langchain-text-splitters
+
+# Document loaders
+pypdf            # PDF
+python-docx      # DOCX
+unstructured     # generic fallback loader
+openpyxl         # Excel (.xlsx)
+pandas           # CSV / Excel data handling
+
+# OCR for images with text (.png, .jpg, .jpeg, etc.)
+pytesseract      # requires system package: tesseract-ocr (apt-get install tesseract-ocr)
+Pillow           # image handling
+
+# Utilities
+python-dotenv
+tiktoken
+numpy
