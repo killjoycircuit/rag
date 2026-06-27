@@ -4,6 +4,8 @@ A self-correcting **Hybrid Retrieval-Augmented Generation** pipeline that combin
 
 Built with **LangChain**, **LangGraph**, **Groq** (free LLM inference), and **HuggingFace** embeddings.
 
+<video src="sample/video-sample.mp4" autoplay muted loop playsinline></video>
+
 ---
 
 ## Why Hybrid RAG?
